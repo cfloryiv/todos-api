@@ -28,6 +28,11 @@ app.get('/todos', function (req, res) {
             filteredTodos=todos;
         }
     }
+    if (qp.hasOwnProperty("q") && qp.q.trim().length>0) {
+        filteredTodos=_.filter(filteredTodos, function(todo) {
+            return todo.description.toLowerCase().indexOf(qp.q.toLowerCase())>=0;
+        });
+    }
 
     res.json(filteredTodos);
 });
