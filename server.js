@@ -40,13 +40,17 @@ app.get('/todos', function (req, res) {
 app.get('/todos/:id', function (req, res) {
     //res.send("ask for todos of id: "+req.params.id);
     var todoID=parseInt(req.params.id, 10);
-    var foundID=_.findWhere(todos, { id: todoID});
-
-    if (foundID) {
-        res.json(foundID);
-    } else {
-        res.status(404).send();
-    }
+    //
+    db.todo.findById(todoID)
+    .then(function(foundID) {
+      if (!!foundID) {
+        return res.json(foundID);
+      } else {
+        return res.status(404).send();
+      }
+    }).error( function(e) {
+        return res.status(404).json(e);
+    });
 });
 
 app.post('/todos', function(req, res) {
