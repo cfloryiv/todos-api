@@ -1,7 +1,7 @@
 var express=require('express');
 var bodyParser=require('body-parser');
 var _ = require('underscore');
-
+var db=require('./db.js');
 var app=express();
 
 var PORT = process.env.PORT || 3000;
@@ -41,7 +41,7 @@ app.get('/todos/:id', function (req, res) {
     //res.send("ask for todos of id: "+req.params.id);
     var todoID=parseInt(req.params.id, 10);
     var foundID=_.findWhere(todos, { id: todoID});
-    
+
     if (foundID) {
         res.json(foundID);
     } else {
@@ -54,25 +54,33 @@ app.post('/todos', function(req, res) {
 
     var body=_.pick(body, 'description', 'completed');
 
-    if (!_.isBoolean(body.completed) || !_.isString(body.description)|| body.description.trim().length===0) {
-        return res.status(400).send();
-    }
-    
-    var todo = {
-        id: todoNextID,
-        description: body.description.trim(),
-        completed: body.completed
-    };
-    todos.push(todo)
-
-    todoNextID++;
-    res.json(todos);
+    db.todo.create({
+      description: body.description.trim(),
+      completed: body.completed
+    }).then(function(todo) {
+      return res.status(200).json(todo.toJSON());
+    }).error(function(e) {
+      return status(400).json(e);
+    });
+    // if (!_.isBoolean(body.completed) || !_.isString(body.description)|| body.description.trim().length===0) {
+    //     return res.status(400).send();
+    // }
+    //
+    // var todo = {
+    //     id: todoNextID,
+    //     description: body.description.trim(),
+    //     completed: body.completed
+    // };
+    // todos.push(todo)
+    //
+    // todoNextID++;
+    // res.json(todos);
 });
 app.delete('/todos/:id', function (req, res) {
     //res.send("ask for todos of id: "+req.params.id);
     var todoID=parseInt(req.params.id, 10);
     var foundID=_.findWhere(todos, { id: todoID});
-    
+
     if (foundID) {
         todos=_.without(todos, foundID)
         res.json(foundID);
@@ -103,7 +111,9 @@ app.put('/todos/:id', function (req, res) {
     _.extend(foundID, validAttributes);
     res.json(foundID);
 });
-app.listen(PORT, function() {
-    console.log('Express listening on port '+PORT);
+db.sequelize.sync().then(function() {
+  app.listen(PORT, function() {
+      console.log('Express listening on port '+PORT);
 
+  });
 });
