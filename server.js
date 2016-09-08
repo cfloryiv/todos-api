@@ -16,27 +16,44 @@ app.get('/', function (req, res) {
 });
 
 app.get('/todos', function (req, res) {
-    var qp = req.query;
-    var filteredTodos=todos;
+    var query = req.query;
+    var where={};
 
-    if (qp.hasOwnProperty('completed') && (qp.completed === "true")) {
-        filteredTodos=_.where(filteredTodos, {completed: true});
-    } else {
-        if (qp.hasOwnProperty('completed') && (qp.completed === "false")) {
-            filteredTodos=_.where(filteredTodos, {completed: false});
-        } else {
-            filteredTodos=todos;
-        }
+    if (query.hasOwnProperty('completed') && query.completed==='true') {
+      where.completed=true;
+    } else if (query.hasOwnProperty('completed') && query.completed==='false') {
+      where.completed=false;
     }
-    if (qp.hasOwnProperty("q") && qp.q.trim().length>0) {
-        filteredTodos=_.filter(filteredTodos, function(todo) {
-            return todo.description.toLowerCase().indexOf(qp.q.toLowerCase())>=0;
-        });
+    if (query.hasOwnProperty('q') && query.q.length>0 ) {
+      where.description={
+        $like: '%'+query.q+'%'
+      };
     }
-
-    res.json(filteredTodos);
-});
-
+    db.todo.findAll({where: where}).then(function(todos) {
+      res.json(todos);
+    }, function(e) {
+      res.status(500).send();
+    })
+  });
+//     var filteredTodos=todos;
+//
+//     if (qp.hasOwnProperty('completed') && (qp.completed === "true")) {
+//         filteredTodos=_.where(filteredTodos, {completed: true});
+//     } else {
+//         if (qp.hasOwnProperty('completed') && (qp.completed === "false")) {
+//             filteredTodos=_.where(filteredTodos, {completed: false});
+//         } else {
+//             filteredTodos=todos;
+//         }
+//     }
+//     if (qp.hasOwnProperty("q") && qp.q.trim().length>0) {
+//         filteredTodos=_.filter(filteredTodos, function(todo) {
+//             return todo.description.toLowerCase().indexOf(qp.q.toLowerCase())>=0;
+//         });
+//     }
+//
+//     res.json(filteredTodos);
+//
 app.get('/todos/:id', function (req, res) {
     //res.send("ask for todos of id: "+req.params.id);
     var todoID=parseInt(req.params.id, 10);
