@@ -33,27 +33,8 @@ app.get('/todos', function (req, res) {
       res.json(todos);
     }, function(e) {
       res.status(500).send();
-    })
+    });
   });
-//     var filteredTodos=todos;
-//
-//     if (qp.hasOwnProperty('completed') && (qp.completed === "true")) {
-//         filteredTodos=_.where(filteredTodos, {completed: true});
-//     } else {
-//         if (qp.hasOwnProperty('completed') && (qp.completed === "false")) {
-//             filteredTodos=_.where(filteredTodos, {completed: false});
-//         } else {
-//             filteredTodos=todos;
-//         }
-//     }
-//     if (qp.hasOwnProperty("q") && qp.q.trim().length>0) {
-//         filteredTodos=_.filter(filteredTodos, function(todo) {
-//             return todo.description.toLowerCase().indexOf(qp.q.toLowerCase())>=0;
-//         });
-//     }
-//
-//     res.json(filteredTodos);
-//
 app.get('/todos/:id', function (req, res) {
     //res.send("ask for todos of id: "+req.params.id);
     var todoID=parseInt(req.params.id, 10);
@@ -83,19 +64,6 @@ app.post('/todos', function(req, res) {
     }).error(function(e) {
       return status(400).json(e);
     });
-    // if (!_.isBoolean(body.completed) || !_.isString(body.description)|| body.description.trim().length===0) {
-    //     return res.status(400).send();
-    // }
-    //
-    // var todo = {
-    //     id: todoNextID,
-    //     description: body.description.trim(),
-    //     completed: body.completed
-    // };
-    // todos.push(todo)
-    //
-    // todoNextID++;
-    // res.json(todos);
 });
 app.delete('/todos/:id', function (req, res) {
     //res.send("ask for todos of id: "+req.params.id);
