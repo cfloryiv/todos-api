@@ -68,14 +68,16 @@ app.post('/todos', function(req, res) {
 app.delete('/todos/:id', function (req, res) {
     //res.send("ask for todos of id: "+req.params.id);
     var todoID=parseInt(req.params.id, 10);
-    var foundID=_.findWhere(todos, { id: todoID});
-
-    if (foundID) {
-        todos=_.without(todos, foundID)
-        res.json(foundID);
-    } else {
+    db.todo.destroy({where: {id: todoID}})
+    .then(function(noRows) {
+      if (noRows>0) {
+        res.status(204).send();
+      } else {
         res.status(404).send();
-    }
+      }
+    }).error(function() {
+      res.status(500).send();
+    });
 });
 app.put('/todos/:id', function (req, res) {
     var body=_.pick(req.body, 'description', 'completed');
