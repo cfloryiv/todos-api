@@ -104,6 +104,17 @@ db.todo.findById(todoID).then(function(todo) {
     res.status(500).send();
 })
 });
+app.post('/users', function(req, res) {
+    var body=req.body;
+
+    var body=_.pick(body, 'email', 'password');
+
+    db.user.create(body).then(function(user) {
+      res.json(user.toJSON());
+    }).error(function(e) {
+      res.status(400).json(e);
+    });
+});
 db.sequelize.sync().then(function() {
   app.listen(PORT, function() {
       console.log('Express listening on port '+PORT);
