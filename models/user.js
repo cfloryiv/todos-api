@@ -70,6 +70,30 @@ module.exports=function(sequelize, DataTypes) {
             );
 
           });
+        },
+        findByToken: function(token) {
+          return new Promise(function(resolve, reject) {
+            try {
+              var decodedJWT=jwt.verify(token, 'qwerty098');
+              var bytes=cryptojs.AES.decrypt(decodedJWT.token, 'abc123!@#');
+              var tokenData=JSON.parse(bytes.toString(cryptojs.enc.Utf8));
+              user.findById(tokenData.id).then(function(user) {
+                if (user) {
+                  resolve(user);
+                  console.log('user was resolved');
+                } else {
+                  console.log('cannot find id');
+                  reject();
+                }
+              }, function(e) {
+                reject();
+                console.log('promises fail');
+              });
+            } catch(e) {
+                reject();
+                console.log('catch fail: '+e);
+            }
+          });
         }
       },
       instanceMethods: {
