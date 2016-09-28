@@ -62,7 +62,12 @@ app.post('/todos', middleware.requireAuthentication, function(req, res) {
       description: body.description.trim(),
       completed: body.completed
     }).then(function(todo) {
-      return res.status(200).json(todo.toJSON());
+      //return res.status(200).json(todo.toJSON());
+      req.user.addTodo(todo).then(function() {
+        return todo.reload();
+      }).then(function(todo) {
+        res.json(todo.toJSON());
+      });
     }).error(function(e) {
       return status(400).json(e);
     });
